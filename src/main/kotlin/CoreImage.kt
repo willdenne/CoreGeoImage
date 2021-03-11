@@ -5,28 +5,25 @@ import java.lang.Exception
 import javax.imageio.ImageIO
 
 class CoreImage(
-    val fileName: String
+    fileName: String
 ) {
 
     var image: BufferedImage? = null
         private set
 
     init {
-        //while (true) {
-            //fileName = readLine()
-            println("Getting file $fileName")
+        println("Getting file $fileName")
 
-            image = try {
-                ImageIO.read(File("src/main/resources/$fileName"))
-            } catch (e: Exception) {
-                null
-            }
-            if (image != null) {
-                println("Found file $fileName")
-                //break
-            }
+        image = try {
+            ImageIO.read(File(fileName))
+        } catch (e: Exception) {
+            null
+        }
+        if (image != null) {
+            println("Found file $fileName")
+        } else {
             println("Failed to get file, please try again")
-        //}
+        }
 
 //        image?.let { buffered ->
 //            for (x: Int in 0 until buffered.width) {
