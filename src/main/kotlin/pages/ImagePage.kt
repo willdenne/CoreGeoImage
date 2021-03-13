@@ -42,6 +42,7 @@ fun imagePage(content: Content) {
                 rememberScrollState()
             )
         ) {
+            SaveDialog()
             Button(
                 onClick = {
                     AppState.screenState(ScreenType.File)
@@ -152,7 +153,6 @@ fun imagePage(content: Content) {
                 }
                 Button(
                     onClick = {
-                        println("Export goes here")
                         coreImage.export()
                     }
                 ) {

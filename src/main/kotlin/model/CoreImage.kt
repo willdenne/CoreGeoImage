@@ -5,11 +5,9 @@ import java.io.File
 import java.lang.Exception
 import javax.imageio.ImageIO
 import java.io.FileNotFoundException
-
 import java.io.PrintWriter
-import java.lang.Math.round
 import javax.swing.JFileChooser
-
+import kotlin.math.roundToInt
 
 class CoreImage(
     private val fileName: String,
@@ -19,7 +17,6 @@ class CoreImage(
     var image: BufferedImage? = null
 
     init {
-        println("Getting file $fileName")
 
         image = try {
             ImageIO.read(File(fileName))
@@ -34,7 +31,6 @@ class CoreImage(
     }
 
     fun update() {
-        println("update")
         image = try {
             ImageIO.read(File(fileName))
         } catch (e: Exception) {
@@ -43,7 +39,6 @@ class CoreImage(
         image?.let { bufferedImage ->
             for (x: Int in 0 until bufferedImage.width) {
                 if (texts.map { it.getPositionInt() }.contains(x)) {
-                    println("recolor at $x")
                     image?.setRGB(
                         x,0,1,bufferedImage.height,arrayOf(255,0,0).toIntArray(),0,0
                     )
@@ -75,32 +70,41 @@ class CoreImage(
         try {
             PrintWriter(File("$location.csv")).use { writer ->
                 val sb = StringBuilder()
-                sb.append("Column number\n")
-                var index = 1
+                sb.append("Pixel Number,")
+                getValidLines().forEach {
+                    sb.append("$it,")
+                }
+                sb.append("\n")
                 image?.let { bufferedImage ->
-                    for (x: Int in 0 until bufferedImage.width) {
-                        if (texts.map { it.getPositionInt() }.contains(x)) {
-                            sb.append("$index,")
-                            index++
-                            for (y: Int in 0 until bufferedImage.height) {
+                    for (y: Int in 0 until bufferedImage.height) {
+                        sb.append(",")
+                        for (x: Int in 0 until bufferedImage.width) {
+                            if (getValidLines().contains(x)) {
                                 val clr = bufferedImage.getRGB(x, y) and 0x000000ff
-                                sb.append("${(clr/255.0).round(5)},")
+                                sb.append("${(clr / 255.0).round(5)},")
                             }
-                            sb.append("\n")
                         }
+                        sb.append("\n")
                     }
                 }
                 writer.write(sb.toString())
-                println("done!")
+                AppState.openDialog.value = true
             }
         } catch (e: FileNotFoundException) {
             println(e.message)
         }
     }
+
+    private fun getValidLines() =
+        texts.filter {
+            it.visibility.value
+        }.map {
+            it.getPositionInt()
+        }
 }
 
 fun Double.round(decimals: Int): Double {
     var multiplier = 1.0
     repeat(decimals) { multiplier *= 10 }
-    return round(this * multiplier) / multiplier
+    return (this * multiplier).roundToInt() / multiplier
 }

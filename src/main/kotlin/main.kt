@@ -23,11 +23,9 @@ fun main() {
             DesktopTheme {
                 when (AppState.screenState()) {
                     ScreenType.File -> {
-                        println("screen file")
                         filePage(content)
                     }
                     ScreenType.Image -> {
-                        println("screen image")
                         imagePage(content)
                     }
                 }

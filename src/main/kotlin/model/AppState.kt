@@ -7,8 +7,10 @@ enum class ScreenType {
     File, Image
 }
 
+
 object AppState {
     private var screen: MutableState<ScreenType> = mutableStateOf(ScreenType.File)
+    val openDialog = mutableStateOf(false)
 
     fun screenState() : ScreenType {
         return screen.value
