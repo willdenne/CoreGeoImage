@@ -4,6 +4,12 @@ import java.awt.image.BufferedImage
 import java.io.File
 import java.lang.Exception
 import javax.imageio.ImageIO
+import java.io.FileNotFoundException
+
+import java.io.PrintWriter
+import java.lang.Math.round
+import javax.swing.JFileChooser
+
 
 class CoreImage(
     private val fileName: String,
@@ -25,15 +31,6 @@ class CoreImage(
         } else {
             println("Failed to get file, please try again")
         }
-
-//        image?.let { buffered ->
-//            for (x: Int in 0 until buffered.width) {
-//                for (y: Int in 0 until buffered.height) {
-//                    val clr = buffered.getRGB(x,y)
-//                    println("($x,$y) ${clr and 0x000000ff}")
-//                }
-//            }
-//        }
     }
 
     fun update() {
@@ -64,6 +61,46 @@ class CoreImage(
     }
 
     fun export() {
-
+        image = try {
+            ImageIO.read(File(fileName))
+        } catch (e: Exception) {
+            null
+        }
+        val filePicker = JFileChooser()
+        val location = if (filePicker.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+            filePicker.selectedFile.path
+        } else {
+            "coreOutput"
+        }
+        try {
+            PrintWriter(File("$location.csv")).use { writer ->
+                val sb = StringBuilder()
+                sb.append("Column number\n")
+                var index = 1
+                image?.let { bufferedImage ->
+                    for (x: Int in 0 until bufferedImage.width) {
+                        if (texts.map { it.getPositionInt() }.contains(x)) {
+                            sb.append("$index,")
+                            index++
+                            for (y: Int in 0 until bufferedImage.height) {
+                                val clr = bufferedImage.getRGB(x, y) and 0x000000ff
+                                sb.append("${(clr/255.0).round(5)},")
+                            }
+                            sb.append("\n")
+                        }
+                    }
+                }
+                writer.write(sb.toString())
+                println("done!")
+            }
+        } catch (e: FileNotFoundException) {
+            println(e.message)
+        }
     }
+}
+
+fun Double.round(decimals: Int): Double {
+    var multiplier = 1.0
+    repeat(decimals) { multiplier *= 10 }
+    return round(this * multiplier) / multiplier
 }

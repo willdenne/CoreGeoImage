@@ -32,12 +32,11 @@ fun imagePage(content: Content) {
     }
 
     val visibleBoxes = mutableStateOf(0)
-    val coreImage = remember {
-        CoreImage(content.imageLocation, texts)
-    }
+    val coreImage = CoreImage(content.imageLocation, texts)
+
+    val hackText = mutableStateOf("")
 
     MaterialTheme {
-
         Column(
             modifier = Modifier.verticalScroll(
                 rememberScrollState()
@@ -67,32 +66,66 @@ fun imagePage(content: Content) {
                     text = "Image is Height: ${coreImage.image?.height} Width: ${coreImage.image?.width}",
                     modifier = Modifier.padding(16.dp)
                 )
+                Text(
+                    text = hackText.value,
+                    modifier = Modifier.size(1.dp)
+                )
                 Row {
                     textBox(
                         texts[0],
                         "Line one",
                         coreImage
-                    )
+                    ) {
+                        if (hackText.value.isEmpty()) {
+                            hackText.value = "_"
+                        } else {
+                            hackText.value = ""
+                        }
+                    }
                     textBox(
                         texts[1],
                         "Line two",
                         coreImage
-                    )
+                    ) {
+                        if (hackText.value.isEmpty()) {
+                            hackText.value = "_"
+                        } else {
+                            hackText.value = ""
+                        }
+                    }
                     textBox(
                         texts[2],
                         "Line three",
                         coreImage
-                    )
+                    ) {
+                        if (hackText.value.isEmpty()) {
+                            hackText.value = "_"
+                        } else {
+                            hackText.value = ""
+                        }
+                    }
                     textBox(
                         texts[3],
                         "Line four",
                         coreImage
-                    )
+                    ) {
+                        if (hackText.value.isEmpty()) {
+                            hackText.value = "_"
+                        } else {
+                            hackText.value = ""
+                        }
+                    }
                     textBox(
                         texts[4],
                         "Line five",
                         coreImage
-                    )
+                    ) {
+                        if (hackText.value.isEmpty()) {
+                            hackText.value = "_"
+                        } else {
+                            hackText.value = ""
+                        }
+                    }
                 }
                 setSpacer(10, 0)
                 Row {
@@ -131,7 +164,6 @@ fun imagePage(content: Content) {
 }
 
 private fun BufferedImage?.toBufferedImage(): ByteArray? {
-    println("rebuffering")
     val baos = ByteArrayOutputStream()
     ImageIO.write(this, "png", baos)
     return baos.toByteArray()
@@ -144,7 +176,7 @@ fun setSpacer(height: Int, width: Int) {
 
 @ExperimentalAnimationApi
 @Composable
-fun textBox(imageLine: ImageLine, text: String, coreImage: CoreImage) {
+fun textBox(imageLine: ImageLine, text: String, coreImage: CoreImage, callback: () -> Unit) {
     Row {
         AnimatedVisibility(
             visible = imageLine.visibility.value
@@ -156,6 +188,7 @@ fun textBox(imageLine: ImageLine, text: String, coreImage: CoreImage) {
                     if (it.isEmpty() || checkIfNumber(it)) {
                         imageLine.position.value = it
                         coreImage.update()
+                        callback.invoke()
                     }
                 },
                 modifier = Modifier.width(124.dp)
